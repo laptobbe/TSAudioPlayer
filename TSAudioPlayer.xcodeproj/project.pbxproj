@@ -18,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		CC3C738036A2B859B576C12D /* TSAudioPlayer.podspec */ = {isa = PBXFileReference; lastKnownFileType = file.podspec; path = TSAudioPlayer.podspec; sourceTree = "<group>"; };
+		CC3C7E723056C9AAC295027C /* LICENCE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENCE; sourceTree = "<group>"; };
 		F61D629719AA2FC70011E049 /* TSAudioPlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TSAudioPlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F61D629A19AA2FC70011E049 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		F61D629C19AA2FC70011E049 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -100,6 +101,7 @@
 			children = (
 				F61D62AD19AA30000011E049 /* TSAudioPlayer.h */,
 				F61D62AE19AA30000011E049 /* TSAudioPlayer.m */,
+				CC3C7E723056C9AAC295027C /* LICENCE */,
 			);
 			name = TSAudioPlayer;
 			sourceTree = "<group>";
