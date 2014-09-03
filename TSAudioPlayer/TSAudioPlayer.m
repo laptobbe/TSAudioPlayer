@@ -8,15 +8,17 @@
 
 #import "TSAudioPlayer.h"
 
-@interface TSAudioPlayer () <NSURLSessionDownloadDelegate>
-@property (nonatomic, strong)NSMutableArray *outputStreams;
-@property AudioQueueRef audioQueue;
-@property NSInputStream *inputStream;
 
+
+@interface TSAudioPlayer () <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDataDelegate, NSURLSessionDownloadDelegate>
+
+@property(nonatomic, strong) NSMutableArray *outputStreams;
+
+@property(nonatomic, strong) NSInputStream *inputStream;
 @property(nonatomic, strong) NSURLSession *backgroundSession;
 @property(nonatomic, strong) NSOperationQueue *delegateQueue;
-@property NSURLSessionDownloadTask *downloadTask;
-
+@property(nonatomic, strong) NSMutableData *audioDataCache;
+@property(nonatomic, strong) NSURLSessionDataTask *streamTask;
 
 @end
 
@@ -25,7 +27,7 @@
 - (instancetype)initWithURL:(NSURL *)url {
     self = [super init];
     if(self) {
-        _downloadTask = [self.backgroundSession downloadTaskWithURL:url];
+        _streamTask = [self.backgroundSession dataTaskWithURL:url];
     }
     return self;
 }
@@ -39,7 +41,7 @@
 
 - (NSURLSession *)backgroundSession {
    if(!_backgroundSession) {
-        _backgroundSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration backgroundSessionConfiguration:@"TSAudioPlayer"] delegate:self delegateQueue:self.delegateQueue];
+        _backgroundSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:@"TSAudioPlayer"] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
     }
     return _backgroundSession;
 }
@@ -64,7 +66,7 @@
 }
 
 - (void)play {
-    [self.downloadTask resume];
+    [self.streamTask resume];
 }
 
 - (void)pause {
@@ -76,17 +78,54 @@
 }
 #pragma mark - URLSession delegate methods
 
-- (void)URLSession:(NSURLSession *)session
-      downloadTask:(NSURLSessionDownloadTask *)downloadTask
-      didWriteData:(int64_t)bytesWritten
-        totalBytesWritten:(int64_t)totalBytesWritten
-totalBytesExpectedToWrite:(int64_t)totalBytesExpectedToWrite {
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
 
 }
 
-- (void)URLSession:(NSURLSession *)session
-                     downloadTask:(NSURLSessionDownloadTask *)downloadTask
-        didFinishDownloadingToURL:(NSURL *)location {
-
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
+    @synchronized (self) {
+        [self.audioDataCache appendData:data];
+    }
 }
+
+/*
+static const int kNumberBuffers = 5;                              // 1
+struct AQPlayerState {
+    AudioStreamBasicDescription   mDataFormat;                    // 2
+    AudioQueueRef                 mQueue;                         // 3
+    AudioQueueBufferRef           mBuffers[kNumberBuffers];       // 4
+    UInt32                        bufferByteSize;                 // 6
+    SInt64                        mCurrentPacket;                 // 7
+    UInt32                        mNumPacketsToRead;              // 8
+    AudioStreamPacketDescription  *mPacketDescs;                  // 9
+    bool                          mIsRunning;                     // 10
+};
+
+static void HandleOutputBuffer (
+        void                *aqData,
+        AudioQueueRef       inAQ,
+        AudioQueueBufferRef inBuffer
+) {
+    struct AQPlayerState *pAqData = (struct AQPlayerState *) aqData;        // 1
+    if (pAqData->mIsRunning == 0) return;                     // 2
+    UInt32 numPackets = pAqData->mNumPacketsToRead;           // 4
+
+    if (numPackets > 0) {                                     // 5
+        inBuffer->mAudioDataByteSize = ;  // 6
+        AudioQueueEnqueueBuffer (
+                pAqData->mQueue,
+                inBuffer,
+                (pAqData->mPacketDescs ? numPackets : 0),
+                pAqData->mPacketDescs
+        );
+        pAqData->mCurrentPacket += numPackets;                // 7
+    } else {
+        AudioQueueStop (
+                pAqData->mQueue,
+                false
+        );
+        pAqData->mIsRunning = false;
+    }
+}
+*/
 @end

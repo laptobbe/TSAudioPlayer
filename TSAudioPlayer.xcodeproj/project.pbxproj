@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC3C746972A4B2557B534A44 /* TSAudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC3C76A5E31C92B7AA09B131 /* TSAudioStreamer.m */; };
 		F61D629B19AA2FC70011E049 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F61D629A19AA2FC70011E049 /* XCTest.framework */; };
 		F61D629D19AA2FC70011E049 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F61D629C19AA2FC70011E049 /* Foundation.framework */; };
 		F61D629F19AA2FC70011E049 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F61D629E19AA2FC70011E049 /* UIKit.framework */; };
@@ -18,7 +19,9 @@
 
 /* Begin PBXFileReference section */
 		CC3C738036A2B859B576C12D /* TSAudioPlayer.podspec */ = {isa = PBXFileReference; lastKnownFileType = file.podspec; path = TSAudioPlayer.podspec; sourceTree = "<group>"; };
+		CC3C76A5E31C92B7AA09B131 /* TSAudioStreamer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TSAudioStreamer.m; path = TSAudioPlayer/TSAudioStreamer.m; sourceTree = "<group>"; };
 		CC3C7E723056C9AAC295027C /* LICENCE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENCE; sourceTree = "<group>"; };
+		CC3C7F75AA8FB278A83C0887 /* TSAudioStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TSAudioStreamer.h; path = TSAudioPlayer/TSAudioStreamer.h; sourceTree = "<group>"; };
 		F61D629719AA2FC70011E049 /* TSAudioPlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TSAudioPlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F61D629A19AA2FC70011E049 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		F61D629C19AA2FC70011E049 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -102,6 +105,8 @@
 				F61D62AD19AA30000011E049 /* TSAudioPlayer.h */,
 				F61D62AE19AA30000011E049 /* TSAudioPlayer.m */,
 				CC3C7E723056C9AAC295027C /* LICENCE */,
+				CC3C7F75AA8FB278A83C0887 /* TSAudioStreamer.h */,
+				CC3C76A5E31C92B7AA09B131 /* TSAudioStreamer.m */,
 			);
 			name = TSAudioPlayer;
 			sourceTree = "<group>";
@@ -169,6 +174,7 @@
 			files = (
 				F61D62AF19AA30000011E049 /* TSAudioPlayer.m in Sources */,
 				F61D62A719AA2FC70011E049 /* TSAudioPlayerTests.m in Sources */,
+				CC3C746972A4B2557B534A44 /* TSAudioStreamer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
