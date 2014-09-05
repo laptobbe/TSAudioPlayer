@@ -10,7 +10,8 @@
 
 - (instancetype)initWithURL:(NSURL *)streamURL;
 
-- (void)play;
+- (void)prime;
+- (BOOL)play;
 - (void)stop;
 - (void)pause;
 

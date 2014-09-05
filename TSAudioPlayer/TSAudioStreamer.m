@@ -5,26 +5,35 @@
 #import "TSAudioStreamer.h"
 #import <AudioToolbox/AudioToolbox.h>
 
-static const int kNumberBuffers = 5;                              // 1
-struct TSPlayerState {
-    AudioStreamBasicDescription   mDataFormat;                    // 2
-    AudioQueueRef                 mQueue;                         // 3
-    AudioQueueBufferRef           mBuffers[kNumberBuffers];       // 4
-    UInt32                        bufferByteSize;                 // 6
-    SInt64                        mCurrentPacket;                 // 7
-    UInt32                        mNumPacketsToRead;              // 8
-    AudioStreamPacketDescription  *mPacketDescs;                  // 9
-    bool                          mIsRunning;                     // 10
-};
-typedef struct TSPlayerState TSPlayerState;
+@interface TSAudioStreamer () <NSURLSessionDelegate, NSURLSessionDataDelegate>
 
+@property(nonatomic, strong) NSURL *streamURL;
+@property(nonatomic, assign) AudioFileStreamID streamID;
+@property(nonatomic, assign) AudioQueueRef audioQueue;
+@property(nonatomic, assign) BOOL isReadyForPlayback;
+
+- (void)setupAudioQueueFromBasicDescription:(AudioStreamBasicDescription)basicDescription;
+
+@end
 
 static void TSAudioStreamerPropertyListener (
         void *			            inClientData,
         AudioFileStreamID			inAudioFileStream,
         AudioFileStreamPropertyID	inPropertyID,
         UInt32 *					ioFlags) {
-
+    
+    TSAudioStreamer *streamer = (__bridge TSAudioStreamer *)(inClientData);
+    
+    if (inPropertyID == kAudioFileStreamProperty_DataFormat) {
+        @synchronized(streamer){
+            UInt32 basicDescriptionSize = sizeof(AudioStreamBasicDescription);
+            AudioStreamBasicDescription basicDescription;
+            AudioFileStreamGetProperty(inAudioFileStream, inPropertyID, &basicDescriptionSize, &basicDescription);
+            [streamer setupAudioQueueFromBasicDescription:basicDescription];
+            streamer.isReadyForPlayback = YES;
+        }
+    }
+    
 
 }
 
@@ -34,16 +43,30 @@ static void TSAudioStreamerPacketsProvider (
         UInt32							inNumberPackets,
         const void *					inInputData,
         AudioStreamPacketDescription	*inPacketDescriptions){
-
-
+    TSAudioStreamer *streamer = (__bridge TSAudioStreamer *)(inClientData);
+    AudioQueueBufferRef buffer = nil;
+    OSStatus error = AudioQueueAllocateBuffer(streamer.audioQueue, inNumberBytes, &buffer);
+    if(error) {
+        NSLog(@"Error allocating buffer");
+    }
+    
+    memcpy(buffer->mAudioData, inInputData, inNumberBytes);
+   
+    buffer->mAudioDataByteSize = inNumberBytes;
+    
+    AudioQueueEnqueueBuffer(streamer.audioQueue, buffer, inNumberPackets, inPacketDescriptions);
+    
 }
-@interface TSAudioStreamer () <NSURLSessionDelegate, NSURLSessionDataDelegate>
 
-@property(nonatomic, assign) struct TSPlayerState playerState;
-@property(nonatomic, strong) NSURL *streamURL;
-@property(nonatomic, assign) AudioFileStreamID streamID;
-
-@end
+static void TSAudioOutputCallback (
+                                   void *                  inUserData,
+                                   AudioQueueRef           inAQ,
+                                   AudioQueueBufferRef     inBuffer
+                                   ) {
+    TSAudioStreamer *streamer = (__bridge TSAudioStreamer *)(inUserData);
+    
+    
+}
 
 @implementation TSAudioStreamer
 
@@ -51,17 +74,47 @@ static void TSAudioStreamerPacketsProvider (
     self = [super init];
     if(self) {
         _streamURL = streamURL;
+        OSStatus streamStatus = AudioFileStreamOpen((__bridge void *)(self), TSAudioStreamerPropertyListener, TSAudioStreamerPacketsProvider, kAudioFileMP3Type, &_streamID);
+        NSAssert(streamStatus == kAudioServicesNoError, @"Stream Encountered an error");
     }
     return self;
 }
+- (void)setupAudioQueueFromBasicDescription:(AudioStreamBasicDescription)basicDescription {
+    AudioQueueNewOutput(&basicDescription, TSAudioOutputCallback, (__bridge void *)(self), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, 0, &_audioQueue);
+}
 
-- (void)play {
-    OSStatus status = AudioFileStreamOpen(&_playerState, TSAudioStreamerPropertyListener, TSAudioStreamerPacketsProvider, kAudioFileMP3Type, &_streamID);
-    if (status == kAudioServicesNoError) {
-        [self startDownload];
-    }else {
-        NSLog(@"Error opening stream, error %i", (int)status);
+- (void)prime {
+    [self startDownload];
+}
+
+- (BOOL)play {
+    @synchronized(self){
+        if(!self.isReadyForPlayback) {
+            return NO;
+        }
+        
+        UInt32 numberOfPreparedFrames = 0;
+        OSStatus error = 0;
+        error = AudioQueuePrime(self.audioQueue, 0, &numberOfPreparedFrames);
+        if(error) {
+            NSLog(@"Error priming");
+        }
+        
+        error =  AudioQueueStart(self.audioQueue, NULL);
+        if(error) {
+            NSLog(@"Error stating playback");
+        }
+        
+        return error == kAudioServicesNoError;
     }
+}
+
+- (void)stop {
+    AudioQueueStop(self.audioQueue, NO);
+}
+
+- (void)pause {
+    AudioQueuePause(self.audioQueue);
 }
 
 - (void)startDownload {
@@ -72,7 +125,10 @@ static void TSAudioStreamerPacketsProvider (
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
-    AudioFileStreamParseBytes(self.streamID, data.length, data.bytes, 0);
+    OSStatus error = AudioFileStreamParseBytes(self.streamID, data.length, data.bytes, 0);
+    if (error) {
+        NSLog(@"Error parsing bytes, error %i", (int)error);
+    }
 }
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
@@ -80,5 +136,11 @@ static void TSAudioStreamerPacketsProvider (
     NSLog(@"Error in downloading %@", error);
 }
 
+- (void)dealloc {
+    if (self.streamID) {
+        AudioFileStreamClose(self.streamID);
+        self.streamID = nil;
+    }
+}
 
 @end
