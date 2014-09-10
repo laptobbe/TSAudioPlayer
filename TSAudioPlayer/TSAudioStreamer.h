@@ -15,4 +15,7 @@
 - (void)stop;
 - (void)pause;
 
+- (NSTimeInterval)currentTime;
+
+- (NSTimeInterval)totalTime;
 @end

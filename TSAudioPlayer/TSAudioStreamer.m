@@ -11,6 +11,9 @@
 @property(nonatomic, assign) AudioFileStreamID streamID;
 @property(nonatomic, assign) AudioQueueRef audioQueue;
 @property(nonatomic, assign) BOOL isReadyForPlayback;
+@property(nonatomic, assign) UInt64 totalPacketCount;
+@property(nonatomic, assign) AudioStreamBasicDescription basicDescription;
+
 
 - (void)setupAudioQueueFromBasicDescription:(AudioStreamBasicDescription)basicDescription;
 
@@ -32,9 +35,12 @@ static void TSAudioStreamerPropertyListener (
             [streamer setupAudioQueueFromBasicDescription:basicDescription];
             streamer.isReadyForPlayback = YES;
         }
+    }else if(inPropertyID == kAudioFileStreamProperty_AudioDataPacketCount) {
+        UInt32 propertySize = sizeof(UInt64);
+        UInt64 packetCount;
+        AudioFileStreamGetProperty(inAudioFileStream, inPropertyID, &propertySize, &packetCount);
+        streamer.totalPacketCount = packetCount;
     }
-    
-
 }
 
 static void TSAudioStreamerPacketsProvider (
@@ -65,7 +71,6 @@ static void TSAudioOutputCallback (
                                    ) {
     TSAudioStreamer *streamer = (__bridge TSAudioStreamer *)(inUserData);
     
-    
 }
 
 @implementation TSAudioStreamer
@@ -75,11 +80,14 @@ static void TSAudioOutputCallback (
     if(self) {
         _streamURL = streamURL;
         OSStatus streamStatus = AudioFileStreamOpen((__bridge void *)(self), TSAudioStreamerPropertyListener, TSAudioStreamerPacketsProvider, kAudioFileMP3Type, &_streamID);
-        NSAssert(streamStatus == kAudioServicesNoError, @"Stream Encountered an error");
+        if(streamStatus) {
+            NSLog(@"Error opening stream");
+        }
     }
     return self;
 }
 - (void)setupAudioQueueFromBasicDescription:(AudioStreamBasicDescription)basicDescription {
+    self.basicDescription = basicDescription;
     AudioQueueNewOutput(&basicDescription, TSAudioOutputCallback, (__bridge void *)(self), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode, 0, &_audioQueue);
 }
 
@@ -117,13 +125,25 @@ static void TSAudioOutputCallback (
     AudioQueuePause(self.audioQueue);
 }
 
+- (NSTimeInterval)currentTime {
+    AudioTimeStamp timeStamp;
+    AudioQueueGetCurrentTime(self.audioQueue, NULL, &timeStamp, NULL);
+    return timeStamp.mSampleTime / self.basicDescription.mSampleRate;
+}
+
+- (NSTimeInterval)totalTime {
+    Float64 packetsPerSecond = self.basicDescription.mSampleRate / self.basicDescription.mFramesPerPacket;
+    return self.totalPacketCount / packetsPerSecond;
+}
+
 - (void)startDownload {
     NSURLSession *downloadSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
     NSURLSessionDataTask *dataTask = [downloadSession dataTaskWithURL:self.streamURL];
     [dataTask resume];
 }
 
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
     OSStatus error = AudioFileStreamParseBytes(self.streamID, data.length, data.bytes, 0);
     if (error) {

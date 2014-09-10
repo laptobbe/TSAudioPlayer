@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		CC3C746972A4B2557B534A44 /* TSAudioStreamer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC3C76A5E31C92B7AA09B131 /* TSAudioStreamer.m */; };
+		CC3C7CCB80D30C7D605C6F55 /* TSTimeFormatterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CC3C79B29C9D5633E9F2EF76 /* TSTimeFormatterTests.m */; };
+		CC3C7DA69F94E201C8F65163 /* TSTimeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = CC3C7ABE9ACC2FFD1FE6CBBF /* TSTimeFormatter.m */; };
 		F61D629B19AA2FC70011E049 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F61D629A19AA2FC70011E049 /* XCTest.framework */; };
 		F61D629D19AA2FC70011E049 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F61D629C19AA2FC70011E049 /* Foundation.framework */; };
 		F61D629F19AA2FC70011E049 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F61D629E19AA2FC70011E049 /* UIKit.framework */; };
@@ -20,6 +22,9 @@
 /* Begin PBXFileReference section */
 		CC3C738036A2B859B576C12D /* TSAudioPlayer.podspec */ = {isa = PBXFileReference; lastKnownFileType = file.podspec; path = TSAudioPlayer.podspec; sourceTree = "<group>"; };
 		CC3C76A5E31C92B7AA09B131 /* TSAudioStreamer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TSAudioStreamer.m; path = TSAudioPlayer/TSAudioStreamer.m; sourceTree = "<group>"; };
+		CC3C79B29C9D5633E9F2EF76 /* TSTimeFormatterTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSTimeFormatterTests.m; sourceTree = "<group>"; };
+		CC3C7ABE9ACC2FFD1FE6CBBF /* TSTimeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TSTimeFormatter.m; path = TSAudioPlayer/TSTimeFormatter.m; sourceTree = "<group>"; };
+		CC3C7BD00C4FD2AA1BF975BD /* TSTimeFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TSTimeFormatter.h; path = TSAudioPlayer/TSTimeFormatter.h; sourceTree = "<group>"; };
 		CC3C7E723056C9AAC295027C /* LICENCE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENCE; sourceTree = "<group>"; };
 		CC3C7F75AA8FB278A83C0887 /* TSAudioStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TSAudioStreamer.h; path = TSAudioPlayer/TSAudioStreamer.h; sourceTree = "<group>"; };
 		F61D629719AA2FC70011E049 /* TSAudioPlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TSAudioPlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,6 +90,7 @@
 			children = (
 				F61D62A619AA2FC70011E049 /* TSAudioPlayerTests.m */,
 				F61D62A119AA2FC70011E049 /* Supporting Files */,
+				CC3C79B29C9D5633E9F2EF76 /* TSTimeFormatterTests.m */,
 			);
 			path = TSAudioPlayerTests;
 			sourceTree = "<group>";
@@ -107,6 +113,8 @@
 				CC3C7E723056C9AAC295027C /* LICENCE */,
 				CC3C7F75AA8FB278A83C0887 /* TSAudioStreamer.h */,
 				CC3C76A5E31C92B7AA09B131 /* TSAudioStreamer.m */,
+				CC3C7BD00C4FD2AA1BF975BD /* TSTimeFormatter.h */,
+				CC3C7ABE9ACC2FFD1FE6CBBF /* TSTimeFormatter.m */,
 			);
 			name = TSAudioPlayer;
 			sourceTree = "<group>";
@@ -175,6 +183,8 @@
 				F61D62AF19AA30000011E049 /* TSAudioPlayer.m in Sources */,
 				F61D62A719AA2FC70011E049 /* TSAudioPlayerTests.m in Sources */,
 				CC3C746972A4B2557B534A44 /* TSAudioStreamer.m in Sources */,
+				CC3C7CCB80D30C7D605C6F55 /* TSTimeFormatterTests.m in Sources */,
+				CC3C7DA69F94E201C8F65163 /* TSTimeFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
